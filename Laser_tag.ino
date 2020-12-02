@@ -1,4 +1,5 @@
 #include <IRremote.h>
+#include <toneAC.h>
 int IR_RECEIVE_PIN = 11;
 IRrecv IrReceiver(IR_RECEIVE_PIN);
 IRsend IrSender;
@@ -7,14 +8,28 @@ int lives = 9;
 int button = 2;
 unsigned long tData = 0xa90;
 int frequency = 1000;
-
+int buzzer = 13;
+void shootSound(){
+  for( int i = 1500 ; i > 1000 ; i-=5){
+    toneAC(i);
+    delay(1);
+}
+  toneAC(0);
+}
+void startSound(){
+  for( int i = 0 ; i < 1000 ; i+=1){
+    toneAC(i);
+    delay(1);
+  }
+  toneAC(0);
+}
 void trigger(){
   if(lives >1){
     if(digitalRead(button) == LOW){
       IrSender.sendSony(tData, 12);
-      Serial.println("shoot");
       IrReceiver.enableIRIn();
-      delay(650);
+      shootSound();
+      delay(150);
     }
   }else if(lives == 0){
     if(digitalRead(button) == LOW){
@@ -31,88 +46,88 @@ void hp(int num)
     digitalWrite(6, 1);
     digitalWrite(7, 1);
     digitalWrite(8, 1);
-    digitalWrite(9, 1);
-    digitalWrite(10, 1);
+    digitalWrite(A5, 1);
+    digitalWrite(A4, 1);
     digitalWrite(12, 0);
   } else if(num == 1) {
     digitalWrite(5, 0);
     digitalWrite(6, 0);
     digitalWrite(7, 1);
     digitalWrite(8, 1);
-    digitalWrite(9, 0);
-    digitalWrite(10, 0);
+    digitalWrite(A5, 0);
+    digitalWrite(A4, 0);
     digitalWrite(12, 0);
   } else if(num == 2) {
     digitalWrite(5, 1);
     digitalWrite(6, 1);
     digitalWrite(7, 0);
     digitalWrite(8, 1);
-    digitalWrite(9, 1);
-    digitalWrite(10, 0);
+    digitalWrite(A5, 1);
+    digitalWrite(A4, 0);
     digitalWrite(12, 1);
   } else if(num == 3) {
     digitalWrite(5, 0);
     digitalWrite(6, 1);
     digitalWrite(7, 1);
     digitalWrite(8, 1);
-    digitalWrite(9, 1);
-    digitalWrite(10, 0);
+    digitalWrite(A5, 1);
+    digitalWrite(A4, 0);
     digitalWrite(12, 1);
   } else if(num == 4) {
     digitalWrite(5, 0);
     digitalWrite(6, 0);
     digitalWrite(7, 1);
     digitalWrite(8, 1);
-    digitalWrite(9, 0);
-    digitalWrite(10, 1);
+    digitalWrite(A5, 0);
+    digitalWrite(A4, 1);
     digitalWrite(12, 1);
   } else if(num == 5) {
     digitalWrite(5, 0);
     digitalWrite(6, 1);
     digitalWrite(7, 1);
     digitalWrite(8, 0);
-    digitalWrite(9, 1);
-    digitalWrite(10, 1);
+    digitalWrite(A5, 1);
+    digitalWrite(A4, 1);
     digitalWrite(12, 1);
   } else if(num == 6) {
     digitalWrite(5, 1);
     digitalWrite(6, 1);
     digitalWrite(7, 1);
     digitalWrite(8, 0);
-    digitalWrite(9, 1);
-    digitalWrite(10, 1);
+    digitalWrite(A5, 1);
+    digitalWrite(A4, 1);
     digitalWrite(12, 1);
   } else if(num == 7) {
     digitalWrite(5, 0);
     digitalWrite(6, 0);
     digitalWrite(7, 1);
     digitalWrite(8, 1);
-    digitalWrite(9, 1);
-    digitalWrite(10, 0);
+    digitalWrite(A5, 1);
+    digitalWrite(A4, 0);
     digitalWrite(12, 0);
   } else if(num == 8) {
     digitalWrite(5, 1);
     digitalWrite(6, 1);
     digitalWrite(7, 1);
     digitalWrite(8, 1);
-    digitalWrite(9, 1);
-    digitalWrite(10, 1);
+    digitalWrite(A5, 1);
+    digitalWrite(A4, 1);
     digitalWrite(12, 1);
   } else if(num == 9) {
     digitalWrite(5, 0);
     digitalWrite(6, 0);
     digitalWrite(7, 1);
     digitalWrite(8, 1);
-    digitalWrite(9, 1);
-    digitalWrite(10, 1);
+    digitalWrite(A5, 1);
+    digitalWrite(A4, 1);
     digitalWrite(12, 1);
   }else {
     digitalWrite(5, 0);
     digitalWrite(6, 0);
     digitalWrite(7, 0);
     digitalWrite(8, 0);
-    digitalWrite(9, 0);
-    digitalWrite(10, 0);
+    digitalWrite(A5, 0);
+    digitalWrite(A4, 0);
     digitalWrite(11, 0);
   }
 }
@@ -140,13 +155,15 @@ void setup() {
     Serial.println(IR_RECEIVE_PIN);
     Serial.print(F("Ready to send IR signals at pin "));
     Serial.println(IR_SEND_PIN);
+    startSound();
+
     
 }
 
 void loop() {
     hp(lives);
     if (IrReceiver.decode(&results)) {
-        if(results.decode_type == SAMSUNG || results.decode_type == UNKNOWN & (lives > 0)){
+        if(results.decode_type == SONY & (lives > 0)){
           lives--;
           Serial.println("received");
         }
